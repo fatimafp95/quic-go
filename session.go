@@ -515,7 +515,7 @@ runLoop:
 			s.handleHandshakeComplete()
 		default:
 		}
-
+		s.handleZeroRTT()
 		s.maybeResetTimer()
 
 		select {
@@ -590,7 +590,7 @@ runLoop:
 			s.closeLocal(err)
 		}
 	}
-
+	fmt.Printf("\n")
 	s.handleCloseError(closeErr)
 	s.logger.Infof("Connection %s closed.", s.logID)
 	s.cryptoStreamHandler.Close()
@@ -602,7 +602,21 @@ runLoop:
 	}
 	return closeErr.err
 }
-
+func (s *session) handleZeroRTT(){
+	if s.config.zeroRTTQueue == nil {
+		return
+	}
+	//Copied from server.go
+	//This code is meant to execute after handling Initial.
+	for {
+		p:=s.config.zeroRTTQueue.Dequeue(s.connIDGenerator.initialClientDestConnID)
+		if p == nil{
+			break
+		}
+		s.handlePacket(p)
+	}
+	//s.config.zeroRTTQueue = nil //no more 0-RTT packets are expected
+}
 // blocks until the early session can be used
 func (s *session) earlySessionReady() <-chan struct{} {
 	return s.earlySessionReadyChan

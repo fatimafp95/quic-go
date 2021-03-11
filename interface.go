@@ -249,6 +249,8 @@ type Config struct {
 	// If it is nil, no qlog will be collected and exported.
 	// If it returns nil, no qlog will be collected and exported for the respective connection.
 	GetLogWriter func(connectionID []byte) io.WriteCloser
+	//O-RTT: Zero RTT queue, from which newly created session will recover enqueued 0-RTT packets.
+	zeroRTTQueue *zeroRTTQueue
 }
 
 // A Listener for incoming QUIC connections

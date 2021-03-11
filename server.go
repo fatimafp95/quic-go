@@ -106,6 +106,7 @@ func ListenAddr(addr string, tlsConf *tls.Config, config *Config) (Listener, err
 
 // ListenAddrEarly works like ListenAddr, but it returns sessions before the handshake completes.
 func ListenAddrEarly(addr string, tlsConf *tls.Config, config *Config) (EarlyListener, error) {
+	fmt.Println("0-RTT activated")
 	s, err := listenAddr(addr, tlsConf, config, true)
 	if err != nil {
 		return nil, err
@@ -144,6 +145,7 @@ func Listen(conn net.PacketConn, tlsConf *tls.Config, config *Config) (Listener,
 
 // ListenEarly works like Listen, but it returns sessions before the handshake completes.
 func ListenEarly(conn net.PacketConn, tlsConf *tls.Config, config *Config) (EarlyListener, error) {
+	fmt.Println("Repositorio local")
 	s, err := listen(conn, tlsConf, config, true)
 	if err != nil {
 		return nil, err
@@ -184,6 +186,7 @@ func listen(conn net.PacketConn, tlsConf *tls.Config, config *Config, acceptEarl
 		logger:              utils.DefaultLogger.WithPrefix("server"),
 		acceptEarlySessions: acceptEarly,
 	}
+	s.config.zeroRTTQueue = s.zeroRTTQueue
 	go s.run()
 	sessionHandler.SetServer(s)
 	s.logger.Debugf("Listening for %s connections on %s", conn.LocalAddr().Network(), conn.LocalAddr().String())
